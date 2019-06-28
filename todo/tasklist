@@ -1,0 +1,33 @@
+Manage NGINX configuration
+---
+
+# Create a service to manage the configuration of NGINX instances
+
+- ominous-server
+- ominous-client
+
+
+
+- ominous-server
+Must have the ability to control NGINX configs by communicating to the ominous-client
+Must have the ability to control NGINX configs via a HTTP/JSON API or a browser frontend
+Must store the configs in a database
+- ominous-client
+Must have the ability to receive NGINX configs via a HTTP/JSON API
+Must have the ability to apply the new/updated NGINX config
+Must have the ability to reload the NGINX processes and report any errors
+
+
+At work we have lots of NGINX instances and use Puppet to manage them. The puppet-nginx module and our profiles that use this module are quite hard to read and use. I was wondering if we could instead have a web application specifically for managing the NGINX configurations. 
+
+My initial thoughts for this project are to use django for the server and flask for the client for a number of reasons:
+
+- django-rest-framework for managing the API
+- Django has the admin page and frontend support via templates built in. So we can initially use the admin page to view the database contents and develop the API first then worry about the frontend later.
+- Django can store data in a database using the ORM which means we dont have to worry about which database to use. (SQLite for dev, PostgreSQL for prod)
+- flask for the client since Django might be too heavy for the client. Its only jobs are to receive the NGINX configs, reload NGINX processes and return status
+
+Ultimately, I'd also like to use this tool for managing NGINX Unit, which already comes with a HTTP/JSON API for managing its configuration so it wouldnt necessarily need to use the client.
+
+The existence of the `crossplane` tool also means that we should prefer to implement this in Python given that crossplane uses Python. 
+
