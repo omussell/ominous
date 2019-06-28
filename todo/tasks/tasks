@@ -1,4 +1,7 @@
+Create tavern tests | id:0976caf1931fa0c411e285efc850bd418cdda9fe
+Figure out how to use django-rest-framework | id:322205f0279b6afe297c5b0a3e2ed421112d5009
 Push to git | id:aac7b10ba62805839f50ff317df8e3be8b32a632
 Create the initial server config | id:c43b984763be3b63980889a2fadee1b5114b23e7
+Add optional query strings to GET so that you can GET specific nginx config files and not all of them | id:ca09eb4874424aaff05b52092afe0b671431beab
 Error handling of subprocess | id:db167b28345b185b79a13e765a9eed4b4ed396a7
 Use crossplane build and parse functions rather than a subprocess | id:eeaeab7e46fa720f7c2de42d8ab9fb5bc20b6846
