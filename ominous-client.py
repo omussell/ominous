@@ -1,12 +1,10 @@
 # FLASK_APP=ominous-agent.py flask run
 # curl -H "Content-type: application/json" -X POST http://127.0.0.1:5000/nginx_config -d "`crossplane parse nginx.conf`"
-from flask import Flask
-from flask import json
-from flask import request
+from fastapi import FastAPI
 import crossplane # type: ignore
 import subprocess
 
-app = Flask(__name__)
+app = FastAPI()
 
 # below works. file['file'] is the filename
 # file['parsed'] is an array of directives, which is the input that crossplane.build expects
@@ -18,14 +16,20 @@ app = Flask(__name__)
 # function to load nginx config files as json using crossplane. optional parameter of specific config files
 # maybe this should be in another app since we'll use it in multiple places?
 
-@app.route('/nginx_config', methods = ['POST'])
-def update_nginx():
-    payload = json.dumps(request.json)
-    for config_file in payload['config']:
-        with open(config_file['file'], 'w') as cf:
-            file_contents = crossplane.build(config_file['parsed'])
-            cf.write(file_contents)
-            return "it bloody well worked"
+@app.get('/ominous')
+async def get_nginx_config():
+    payload = crossplane.parse('/usr/local/etc/nginx/nginx.conf')
+    return payload
+
+# works but needs pydantic model creating
+#@app.post('/nginx_config')
+#async def update_nginx():
+#    payload = json.dumps(request.json)
+#    for config_file in payload['config']:
+#        with open(config_file['file'], 'w') as cf:
+#            file_contents = crossplane.build(config_file['parsed'])
+#            cf.write(file_contents)
+#            return "it bloody well worked"
 
 ## Get the NGINX configs
 ## should be able to use query strings to get specific config files
@@ -37,6 +41,16 @@ def update_nginx():
 #        outfile.write(writeme)
 #        subprocess.run(["crossplane", "build", "nginx.json", "-f",])
 #        return "it bloody well worked"
+
+# if putting the new config in place causes NGINX -t to fail, revert to previous config? 
+# but crossplane should pick up any errors
+# see https://github.com/nginxinc/crossplane#crossplane-parse-advanced
+# should use this, run crossplane with checks prior to applying the config
+# the node itself should check though in case there is node specific config. Then the errors can be returned to the master
+
+# create CI / build steps using invoke
+
+# allow jinja2 variables in config file, filled in by app specific attributes set in the web interface? then config files can be templated and the same for multiple servers, except with app specific variables.
 
 
 
@@ -65,3 +79,8 @@ def update_nginx():
 #            proxy_pass http://container1;
 #            rewrite ^(/ominous)(/containers/container1) $1  break;
 #        }
+
+# for generating tokens:
+# import secrets
+# secrets.token_urlsafe(256)
+# https://docs.python.org/3/library/secrets.html#secrets.token_urlsafe
